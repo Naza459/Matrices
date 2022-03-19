@@ -1,0 +1,411 @@
+#include<stdio.h>
+#include<conio.h>
+#include<stdio.h>
+#include<math.h>
+#include <stdlib.h>
+#include <memory.h>
+#define N 100
+int opcion,f,c,n,i,j;
+char tecla;
+
+struct vec
+{
+	float v[N];
+	float beta;
+};
+//estructura vec guardar;
+float A[N][N];
+struct vec house(float [],int n);
+float two_norm(float x[],int begin,int end);
+float max(float x[],int n);
+
+
+void ShowMatrix(float **Matrix, int n);
+void CreateMatrix(float **Matrix, int n);
+void Llenar(float **Matrix, int n);
+float **SolveGaussJordan(int n, float **MatrixA, float **MatrixB);
+
+main()
+{
+	menu:{printf("Menu de opciones, Matriz LU Cholesky y Matriz QR.\n\n");
+	printf("1-Matriz LU Cholesky\n");
+	printf("2-Matriz QR\n");
+	printf("3-Salir\n");
+	printf("Opcion ingresada: ");
+	scanf("%d",&opcion);
+	}
+	
+	switch(opcion)
+	       {
+	      ////////////////////////////Matriz LU cholesky  	
+			   case 1:{
+    int n,i,j,s,k;
+    float **L=NULL,**U=NULL,**A=NULL,Suma=0,Op=0,*Ap,Numer=0,Denom=0;
+ printf("Resolver por metodo de Factorizacion LU\nIngrese el numero de Variables: ");
+ scanf("%i",&n);
+    //Crear la Matriz A
+    if((A=(float**)malloc(n*sizeof(float*)))==NULL){
+        printf("[!] Insuficiente espacio en la Memoria\n");
+        return -1;
+    }
+ A=(float**)malloc((n)*sizeof(float));
+ for(i=0;i<n+1;i++){
+        A[i]=(float*)malloc(sizeof(float));
+ }
+    /*Creamos la Matriz L*/
+    if((L=(float**)malloc(n*sizeof(float*)))==NULL){
+        printf("[!] Insuficiente espacio en la Memoria\n");
+        return -1;
+    }
+    L=(float**)malloc(n*sizeof(float));
+    for(i=0;i<n;i++){
+        L[i]=(float*)malloc(n*sizeof(float));
+    }
+    /*CREAR LA MATRIZ U*/
+    if((U=(float**)malloc(n*sizeof(float*)))==NULL){
+        printf("[!] Insuficiente espacio en la Memoria\n");
+        return -1;
+    }
+    U=(float**)malloc(n*sizeof(float));
+    for(i=0;i<n;i++){
+        U[i]=(float*)malloc(n*sizeof(float));
+    }
+    //Introducimos Valores a A
+ for(i=0;i<n;i++){
+        for(j=0;j<n+1;j++){
+            printf("Introduce el valor [%i][%i]: ",i,j);
+            scanf("%f",&A[i][j]);
+        }
+ }
+ //MOSTRAMOS SISTEMA ECUACIONES
+ printf("MATRIZ QUE REPRESENTA A EL SISTEMA DE ECUACIONES\n");
+ for(i=0;i<n;i++){
+     printf("[");
+        for(j=0;j<n+1;j++){
+            printf("\t%0.2f\t",A[i][j]);
+            if (j==n-1) printf("|");
+        }
+        printf("]\n");
+ }
+ //LENAR MATRICES DE CEROS
+ Llenar(U,n);
+ Llenar(L,n);
+ Ap=&Suma;//Apuntamos a Suma
+ //[!]AQUI EMPIEZA EL CALCULO DE LAS MATRICES L y U
+ //DESDE k=1 HASTA n
+ for(k=0;k<n;k++){
+     U[k][k]=1;
+     //SUMATORIA
+     for(s=0;s<=(k-1);s++){
+            Op=L[k][s]*U[s][k];
+            Suma+=Op;
+     }
+     //FIN SUMATORIA
+     L[k][k]=A[k][k]-Suma;
+     *Ap=0;
+     //DESDE i=(k+1) HASTA n
+     for(i=(k+1);i<n;i++){
+         //SUMATORIA
+            for(s=0;s<=(k-1);s++){
+                Op=L[i][s]*U[s][k];
+                Suma+=Op;
+            }
+            //FIN SUMATORIA
+            L[i][k]=A[i][k]-Suma;
+            *Ap=0;
+     }
+     //FIN
+     //DESDE j=(k+1) HASTA n
+     for(j=(k+1);j<n;j++){
+         //SUMATORIA
+            for(s=0;s<=(k-1);s++){
+                Op=L[k][s]*U[s][j];
+                Suma+=Op;
+            }
+            //FIN SUMATORIA
+         Numer=A[k][j]-Suma;
+         Denom=L[k][k];
+            U[k][j]=Numer/Denom;
+            *Ap=0;
+     }
+     //FIN
+ }//FIN
+ //[!]AQUI TERMINA EL CALCULO DE LAS MATRICES L y U
+    printf("\nMatriz L:\n");
+ ShowMatrix(L,n);
+ printf("\nMatriz U:\n");
+ ShowMatrix(U,n);
+ //[!]RESOLVEREMOS LOS SISTEMAS DE ECUACIONES CON GAUSS-JORDAN
+ //Ly=B y depues PARA Ux=y y Se mostraran los valores de las incognitas =)
+ printf("\n[+]Resolviendo Ly=b:\n");
+ A=SolveGaussJordan(n,L,A); //Apuntamos la matriz que nos regresa a la Matriz A Nueva =)
+ printf("\n[+]Resolviendo Ux=y:\n");
+ SolveGaussJordan(n,U,A); // Se mostrara la matriz solucion al Sistema de Ecuaciones =)
+ //LIBERAR MEMORIA
+ for(i=0;i<n;i++){
+        free(A[i]);
+        free(L[i]);
+        free(U[i]);
+ }
+    free(A);
+ free(L);
+ free(U);
+
+			   	break;
+			   }
+                        
+                case 2: {
+                	int i,j,t,k,m,n;
+	float d[N],sum[N][N],temp[N],tem[N][N],temp_v[N][N];
+	struct vec left;
+	
+	printf("Ingrese la fila y la columna de la matriz A:\n");
+	scanf("%d %d",&m,&n);
+	printf("Ingrese los elementos de la matriz A:\n");
+	for (i=1;i<=m;i++)
+	for (j=1;j<=n;j++)
+	scanf("%f",&A[i][j]);
+	
+	for (j=1;j<=n;j++)
+	{
+		for (i=0;i<=N-1;i++)
+		{
+			for (k=0;k<=N-1;k++)
+			{
+				sum[i][k]=0.0;
+			}
+		}
+		if (j<m)
+		{
+			for (i=j;i<=m;i++)
+			temp[i-j+1]=A[i][j];
+			
+			left=house(temp,m-j+1);
+			d[j]=left.beta;
+			for (i=1;i<=m-j+1;i++)
+			{
+				for (k=1;k<=m-j+1;k++)
+				{
+					temp_v[i][k]=left.v[i]*left.v[k];
+					if (i==k)
+					{
+						tem[i][k]=1.0-d[j]*temp_v[i][k];
+					}
+					else
+					tem[i][k]=-d[j]*temp_v[i][k];
+				}
+			}
+			// Matriz de almacenamiento I-beta * vv ^ T
+			for (i=j;i<=m;i++)
+			{
+				for (k=j;k<=n;k++)
+				{
+					for (t=j;t<=m;t++)
+					{
+						sum[i-j+1][k-j+1]+=tem[i-j+1][t-j+1]*A[t][k];
+					}
+				}
+			} 
+			
+			for (i=j;i<=m;i++)
+			{   
+				for (k=j;k<=n;k++)
+				{
+					A[i][k]=sum[i-j+1][k-j+1];
+				}
+			}
+ 
+			for (i=j+1;i<=m;i++)
+			A[i][j]=left.v[i-j+1];
+		}
+	}
+	
+	for (i=1;i<=m;i++)
+	{
+		for (k=1;k<=n;k++)
+		{
+			printf("%f ",A[i][k]);
+		}
+		printf("\n");
+	}
+	
+                	break;
+                }
+                
+                case 3:{
+                	
+                	break;
+                }
+            }
+return 0;
+			
+}
+
+void ShowMatrix(float **Matrix, int n){
+    int i,j;
+    for(i=0;i<n;i++){
+        printf("[");
+        for(j=0;j<n;j++) printf(" %0.2f ",Matrix[i][j]);
+        printf("]\n");
+    }
+}
+
+
+void CreateMatrix(float **Matrix, int n){
+    int i,j;
+ for(i=0;i<n;i++){
+        for(j=0;j<n;j++){
+            printf("Introduce el valor [%i][%i]: ",i,j);
+            scanf("%f",&Matrix[i][j]);
+        }
+ }
+}
+
+void Llenar(float **Matrix, int n){
+    int i; for(i=0;i<n;i++) memset(Matrix[i],0,n*sizeof(float));
+}
+
+float **SolveGaussJordan(int n, float **MatrixA, float **MatrixB){
+    float **A, apoyo;
+    int i, j, k;
+    float matapoyo[n+1];
+    A=(float**)malloc(sizeof(float*)*n);
+    for(i=0;i<n+1;i++){
+        A[i]=(float*)malloc(sizeof(float)*n);
+    }
+    for(i=0;i<n;i++){
+        for(j=0; j<n+1; j++){
+            if(j<=n-1) A[i][j]=MatrixA[i][j];
+            else A[i][j]=MatrixB[i][j];
+        }
+    }
+    printf("\t[-]Matriz ques representa el sistema:\n");
+    for(i=0;i<n;i++){
+        printf("[ ");
+        for(j=0; j<n+1; j++){
+            printf("\t%.2f\t", A[i][j]);
+            }
+        printf(" ]\n");
+    }
+
+    for(i=0;i<n;i++){
+        k=1;
+        do{
+            apoyo=A[i][i];
+            if(apoyo==0){
+                for(j=0; j<n+1; j++){
+                    matapoyo[j]=A[i][j];
+                }
+                for(j=0; j<n+1; j++){
+                   A[i][j]=A[i+k][j];
+                }
+                for(j=0; j<n+1; j++){
+                   A[i+k][j]=matapoyo[j];
+                }
+            }
+            k++;
+        }while(apoyo==0);
+
+    for(j=0;j<n+1;j++) A[i][j]=A[i][j]/apoyo;
+
+    for(j=0;j<n+1;j++){
+        if(i!=j){
+            apoyo=-1*A[j][i];
+            for(k=0; k<n+1; k++){
+                A[j][k]=A[j][k]+(apoyo*A[i][k]);
+            }
+        }
+    }
+    printf("\n");
+    for(j=0;j<n;j++){
+        printf("[ ");
+        for(k=0; k<n+1; k++){
+            printf("\t%.2f\t", A[j][k]);
+        }
+        printf(" ]\n");
+      }
+    }
+    return A;
+}
+
+// La implementación de la transformación del hogar
+struct vec house(float x[],int n)
+{
+	int i,j,k;
+	float m,sigma,alpha;
+	struct vec save;
+	m=max(x,n);
+	printf(" %f\n",m);
+	for (i=1;i<=n;i++)
+	{
+		x[i]=x[i]/m;
+	}
+	sigma=two_norm(x,2,n);
+	sigma=pow(sigma,2);
+	for (j=2;j<=n;j++)
+	{
+		save.v[j]=x[j];
+	}
+	if (sigma==0)
+	{
+		save.beta=0.0;
+	}
+	else
+	{
+		alpha=sqrt(pow(x[1],2)+sigma);
+		if (x[1]<=0)
+		{
+			save.v[1]=x[1]-sigma;
+		}
+		else 
+		{
+			save.v[1]=-(sigma/(x[1]+alpha));
+		}
+		save.beta=2*pow(save.v[1],2)/(sigma+pow(save.v[1],2));
+	}
+	for (k=n;k>=1;k--)
+    {
+		save.v[k]=save.v[k]/save.v[1];
+    }
+	
+	return save;
+} 
+ 
+float two_norm(float x[],int begin,int end)
+{
+	int i;
+	float val=0.0;
+	
+	for (i=begin;i<=end;i++)
+	{
+		val+=pow(x[i],2);
+	}
+	val=sqrt(val);
+	
+	return val;
+}
+ 
+float max(float x[],int n)
+{
+	int i,j;
+	float max_val;
+	max_val=x[1];
+	
+	for (i=1;i<=n;i++)
+	{
+		if (max_val<x[i])
+		{
+			max_val=x[i];
+		} 
+	}
+	
+	return max_val;
+	
+
+	return(0);
+}
+ 
+        
+
+	       		
+		  
